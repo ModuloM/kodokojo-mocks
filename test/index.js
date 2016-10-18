@@ -87,6 +87,36 @@ describe('Server', function() {
         });
       });
     });
+    it('Should serve "some data" depending on a given bad token', function(done) {
+      var server = new mockServer(__dirname+"/test_mocks/test_config.json");
+      server.start().then(function(state){
+        request.get({
+          url: 'http://localhost:'+server.config.port+'/'+server.config.prefix+(server.config.routes[2].path.replace(':token','badtoken'))
+        }, function(error, response, body){
+          var data = JSON.parse(body);
+          expect(data.error).to.be.equal('Bad token');
+          server.close();
+          done();
+        });
+      });
+    });
+    it('Should serve "some data" depending on a given body request', function(done) {
+      var server = new mockServer(__dirname+"/test_mocks/test_config.json");
+      server.start().then(function(state){
+        request({
+          method: 'PUT',
+          url: 'http://localhost:'+server.config.port+'/'+server.config.prefix+(server.config.routes[3].path)
+          body: {
+            test: 'some test'
+          }
+        }, function(error, response, body){
+          var data = JSON.parse(body);
+          expect(data.error).to.be.equal('Bad token');
+          server.close();
+          done();
+        });
+      });
+    });
 
   });
 });
